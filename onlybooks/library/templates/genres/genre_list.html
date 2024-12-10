@@ -1,0 +1,24 @@
+{% extends "home.html" %}
+{% block content %}
+<h1>Genres</h1>
+<a href="{% url 'genre_create' %}" class="btn btn-primary mb-3">Add New Genre</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for genre in genres %}
+        <tr>
+            <td>{{ genre.name }}</td>
+            <td>
+                <a href="{% url 'genre_update' genre.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'genre_delete' genre.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

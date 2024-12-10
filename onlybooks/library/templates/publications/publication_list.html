@@ -1,0 +1,24 @@
+{% extends "home.html" %}
+{% block content %}
+<h1>Publications</h1>
+<a href="{% url 'publication_create' %}" class="btn btn-primary mb-3">Add New Publication</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for publication in publications %}
+        <tr>
+            <td>{{ publication.name }}</td>
+            <td>
+                <a href="{% url 'publication_update' publication.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'publication_delete' publication.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

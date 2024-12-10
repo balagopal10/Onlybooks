@@ -48,9 +48,25 @@ class Book(models.Model):
 class Subscription(models.Model):
     subscription_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    plan = models.CharField(max_length=100)  # Example: Basic, Premium
+    plan = models.CharField(max_length=50, choices=[
+        ('Gold', 'Gold'),
+        ('Platinum', 'Platinum'),
+        ('Diamond', 'Diamond')
+    ])
     start_date = models.DateField()
     end_date = models.DateField()
+    max_rentals = models.PositiveIntegerField(default=2)  # E.g., Gold=2, Platinum=5, Diamond=10
+
+    def save(self, *args, **kwargs):
+        # Set plan-specific max_rentals
+        if self.plan == 'Gold':
+            self.max_rentals = 2
+        elif self.plan == 'Platinum':
+            self.max_rentals = 5
+        elif self.plan == 'Diamond':
+            self.max_rentals = 10
+        super().save(*args, **kwargs)
+
 
 # Rental Table
 class Rental(models.Model):

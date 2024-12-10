@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .table-container {
+            margin: 20px auto;
+            max-width: 90%;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .status-returned {
+            color: green;
+        }
+        .status-overdue {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rental List</h1>
+        <div class="table-container">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Book</th>
+                        <th>Rental Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rental in rentals %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ rental.user.username }}</td>
+                        <td>{{ rental.book.title }}</td>
+                        <td>{{ rental.rental_date }}</td>
+                        <td>{{ rental.due_date }}</td>
+                        <td>
+                            {% if rental.status == 'Returned' %}
+                            <span class="status-returned">{{ rental.status }}</span>
+                            {% elif rental.status == 'Overdue' %}
+                            <span class="status-overdue">{{ rental.status }}</span>
+                            {% else %}
+                            {{ rental.status }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No rentals found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
