@@ -6,35 +6,49 @@ from django.contrib.auth import authenticate,login,logout
 from datetime import date, timedelta
 
 from .models import Author, Book, Rental, Genre, Publication, Subscription,  Rental
-from .forms import MyLoginForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication, SubscriptionForm, UpgradeSubscriptionForm, RentBookForm
+from .forms import EditBook, MyLoginForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication, SubscriptionForm, UpgradeSubscriptionForm, RentBookForm
 # Create your views here.
 
 def Index(request):
     return render(request,'home.html')
     #return HttpResponse("Welcome")
+
+
+
+from django.shortcuts import redirect
+from django.contrib.auth.models import Group
+
 def user_login(request):
     if request.method == 'POST':
-        #we will be getting username and passwords through
-        login_form= MyLoginForm(request.POST)
+        login_form = MyLoginForm(request.POST)
         if login_form.is_valid():
-            cleaned_data= login_form.cleaned_data
-            auth_user= authenticate(
+            cleaned_data = login_form.cleaned_data
+            auth_user = authenticate(
                 request,
                 username=cleaned_data['username'],
                 password=cleaned_data['password']
-                )
+            )
             if auth_user is not None:
                 login(request, auth_user)
-                #get user's role
-                group= auth_user.groups.first()
-                group_name= group.name if group else "No Group"
-                request.session['group_name']= group_name
-                return redirect('home_path')
+                
+                # Get user's group
+                group = auth_user.groups.first()
+                group_name = group.name if group else "No Group"
+                request.session['group_name'] = group_name
+                
+                # Redirect based on group name
+                if group_name == "Admin":
+                    return redirect('admin_dashboard')  # Replace with your admin dashboard URL name
+                elif group_name == "User":
+                    return redirect('user_dashboard')  # Replace with your user dashboard URL name
+                else:
+                    return HttpResponse('No Dashboard Available for this role')
             else:
                 return HttpResponse('Not Authenticated')
     else:
-        login_form=MyLoginForm()
-    return render(request, 'useraccount/user_login.html',{'login_form': login_form})
+        login_form = MyLoginForm()
+    return render(request, 'useraccount/user_login.html', {'login_form': login_form})
+
 
 def custom_logout(request):
     logout(request) #destroy all the session id for a particular user
@@ -61,28 +75,46 @@ def register(request):
 
 
 #Decorator for role-based access
-def role_required(roles):
-    def decorator(view_func):
-        def _wrapped_view(request, *args, **kwargs):
-            if request.user.is_authenticated and request.user.groups.filter(name__in=roles).exists():
-                return view_func(request, *args, **kwargs)
-            return redirect('login')
-        return _wrapped_view
-    return decorator
+# def role_required(roles):
+#     def decorator(view_func):
+#         def _wrapped_view(request, *args, **kwargs):
+#             if request.user.is_authenticated and request.user.groups.filter(name__in=roles).exists():
+#                 return view_func(request, *args, **kwargs)
+#             return redirect('login')
+#         return _wrapped_view
+#     return decorator
 
 # Admin Dashboard
 @login_required
-@role_required(['Admin'])
+# @role_required(['Admin'])
 def admin_dashboard(request):
     books = Book.objects.all()
     return render(request, 'admin_dashboard.html', {'books': books})
 
 # User Dashboard
 @login_required
-@role_required(['User'])
+# @role_required(['User'])
 def user_dashboard(request):
     rentals = Rental.objects.filter(user=request.user)
     return render(request, 'useraccount/user_dashboard.html', {'rentals': rentals})
+
+@login_required
+def manage_books(request):
+    return render(request,'books/managebooks.html')
+
+@login_required
+def manage_authors(request):
+    return render(request,'authors/manage_authors.html')
+
+
+@login_required
+def manage_genres(request):
+    return render(request,'genres/manage_genres.html')
+
+@login_required
+def manage_publications(request):
+    return render(request,'publications/manage_publications.html')
+
 
 
 # Book Views
@@ -98,18 +130,18 @@ def book_create(request):
             return redirect('book_list')
     else:
         form = AddBook()
-    return render(request, 'books/book_form.html', {'form': form})
+    return render(request, 'books/add_book.html', {'form': form})
 
 def book_update(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
-        form = AddBook(request.POST, instance=book)
+        form = EditBook(request.POST, instance=book)
         if form.is_valid():
             form.save()
             return redirect('book_list')
     else:
-        form = AddBook(instance=book)
-    return render(request, 'books/book_form.html', {'form': form})
+        form = EditBook(instance=book)
+    return render(request, 'books/edit_book.html', {'form': form})
 
 def book_delete(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -129,7 +161,7 @@ def author_create(request):
             return redirect('author_list')
     else:
         form = AddAuthor()
-    return render(request, 'authors/author_form.html', {'form': form})
+    return render(request, 'authors/add_authors.html', {'form': form})
 
 def author_update(request, pk):
     author = get_object_or_404(Author, pk=pk)
@@ -140,7 +172,7 @@ def author_update(request, pk):
             return redirect('author_list')
     else:
         form = AddAuthor(instance=author)
-    return render(request, 'authors/author_form.html', {'form': form})
+    return render(request, 'authors/edit_authors.html', {'form': form})
 
 def author_delete(request, pk):
     author = get_object_or_404(Author, pk=pk)
@@ -160,7 +192,23 @@ def genre_create(request):
             return redirect('genre_list')
     else:
         form = AddGenre()
-    return render(request, 'genres/genre_form.html', {'form': form})
+    return render(request, 'genres/add_genre.html', {'form': form})
+
+def genre_update(request, pk):
+    genre = get_object_or_404(Genre, pk=pk)
+    if request.method == 'POST':
+        form = AddGenre(request.POST, instance=genre)
+        if form.is_valid():
+            form.save()
+            return redirect('genre_list')
+    else:
+        form = AddAuthor(instance=genre)
+    return render(request, 'genres/edit_genre.html', {'form': form})
+
+def genre_delete(request,pk):
+    genre=get_object_or_404(genre,pk)
+    genre.delete()
+    return redirect('genre_list')
 
 def publication_list(request):
     publications = Publication.objects.all()
@@ -174,7 +222,7 @@ def publication_create(request):
             return redirect('publication_list')
     else:
         form = AddPublication()
-    return render(request, 'publications/publication_form.html', {'form': form})
+    return render(request, 'publications/add_publication.html', {'form': form})
 
 def publication_update(request, pk):
     publication = get_object_or_404(Publication, pk=pk)
@@ -185,7 +233,7 @@ def publication_update(request, pk):
             return redirect('publication_list')
     else:
         form = AddPublication(instance=publication)
-    return render(request, 'publications/publication_form.html', {'form': form})
+    return render(request, 'publications/edit_publication.html', {'form': form})
 
 def publication_delete(request, pk):
     publication = get_object_or_404(Publication, pk=pk)

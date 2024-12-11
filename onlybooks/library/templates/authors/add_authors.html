@@ -1,0 +1,75 @@
+{% extends 'home.html' %}
+
+{% block title %} ADD AUTHORS {% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+
+    .mycustomcardstyle {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+        max-width: 600px;
+        padding: 20px;
+    }
+
+    .card-body h3 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    form input[type="submit"] {
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 10px 15px;
+        text-align: center;
+        transition: background-color 0.3s ease;
+    }
+
+    form input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    form input, form textarea, form select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    form input:focus, form textarea:focus, form select:focus {
+        border-color: #80bdff;
+        outline: none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="card mycustomcardstyle">
+    <div class="card-body">
+        <h3>Add A New Author</h3>
+        <form action="" method="post" enctype='multipart/form-data' novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Add Author" class="btn bt">
+        </form>
+    </div>
+</div>
+{% endblock %}

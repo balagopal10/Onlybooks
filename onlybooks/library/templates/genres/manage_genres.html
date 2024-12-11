@@ -56,40 +56,27 @@
             <div class="col-md-4" data-aos="fade-up">
                 <div class="card feature-card text-center">
                     <div class="card-body">
-                        <p class="card-text">View and manage all books in the library.</p>
-                        <a href="{% url 'book_list' %}" class="btn btn-primary">Manage Books</a>
+                        <h5 class="card-title">Add Genre</h5>
+                        <a href="{% url 'genre_create' %}" class="btn btn-primary">Click Here</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="card feature-card text-center">
                     <div class="card-body">
-                        <p class="card-text">View and manage all authors.</p>
-                        <a href="{% url 'author_list' %}" class="btn btn-primary">Manage Authors</a>
+                        <h5 class="card-title">Edit Genres</h5>
+                        <a href="{% url 'genre_update' %}" class="btn btn-primary">Click Here</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="card feature-card text-center">
                     <div class="card-body">
-                        <p class="card-text">View and manage various book genres.</p>
-                        <p class="card-text">Manage  Genres.</p>
-                        <a href="{% url 'genre_list' %}" class="btn btn-primary">Browse Genres</a>
+                        <h5 class="card-title">Delete Genres</h5>
+                        <a href="{% url 'genre_delete' %}" class="btn btn-primary">Click Here</a>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="card feature-card text-center">
-                    <div class="card-body">
-                        
-                        <p class="card-text">View and manage Publications.</p>
-                        <a href="{% url 'publication_list' %}" class="btn btn-primary">Manage Publications</a>
-                    </div>
-                </div>
-            </div>
-
-
         </div>
     </div>
 

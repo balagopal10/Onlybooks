@@ -22,6 +22,7 @@ class Publication(models.Model):
 class Author(models.Model):
     author_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    profile_photo=models.ImageField(upload_to="library/profile_photos/", null=True, blank=True)
     description = models.TextField()
 
     def __str__(self):
@@ -31,6 +32,7 @@ class Author(models.Model):
 class Book(models.Model):
     book_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
+    book_img=models.ImageField(upload_to="library/images/", null=True, blank=True)
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)

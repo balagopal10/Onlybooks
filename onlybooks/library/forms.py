@@ -41,12 +41,38 @@ class UserRegistrationForm(forms.ModelForm): #using ModelForm
 class AddBook(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title', 'author', 'genre','price', 'publication_date', 'availability_status', 'preview','publication']
+        fields = ['title','book_img','author', 'genre','price', 'publication_date', 'availability_status', 'preview','publication']
+
+    #validation for book_title
+    def clean_book_title(self):
+        book_title= self.cleaned_data.get('title')
+        if not book_title:
+            raise ValidationError('This field is required')
+        if len(book_title)<5:
+            raise ValidationError('Title should be atleast 5 characters long')
+        return book_title
+
+    #validation for book_image
+    def clean_book_image(self):
+        book_image= self.cleaned_data.get('book_img')
+        if book_image:
+            extensions=['png','jpg','jpeg','avif','webp']
+            image_extension= book_image.name.lower().split('.')[-1]
+            if image_extension not in extensions:
+                raise ValidationError('Image must be in PNG, JPG, JPEG, AVIF, WEBP format!')
+        return book_image
+    
+class EditBook(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title','book_img','author', 'genre','price', 'publication_date', 'availability_status', 'preview','publication']
 
 class AddAuthor(forms.ModelForm):
     class Meta:
         model = Author
-        fields = ['name', 'description']
+        fields = ['name','profile_photo', 'description']
+
+    
 
 class AddGenre(forms.ModelForm):
     class Meta:
