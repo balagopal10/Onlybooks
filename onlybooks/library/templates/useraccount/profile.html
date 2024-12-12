@@ -1,0 +1,18 @@
+{% extends 'home.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Welcome, {{ user.username }}!</h1>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>First Name:</strong> {{ user.first_name }}</p>
+    <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+
+    <!-- Add more details if you have a custom profile model -->
+    <div class="mt-4">
+        <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+{% endblock %}

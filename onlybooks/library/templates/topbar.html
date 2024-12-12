@@ -49,24 +49,20 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'book_list' %}">Books</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'author_list' %}">Authors</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'genre_list' %}">Genres</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'publication_list' %}">Publications</a></li>
-                </ul>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <!-- Login/Logout and Register -->
-                <div class="d-flex">
+                <div class="d-flex align-items-center">
                     {% if user.is_authenticated %}
                         <span class="navbar-text me-3">Hello, {{ user.username }}</span>
-                        <a href="{% url 'logout' %}" class="btn btn-outline-light">Logout</a>
+                        <a href="{% url 'profile' %}" class="btn btn-outline-light me-2">View Profile</a>
+                        <a href="{% url 'logout' %}" class="btn btn-outline-light ms-2">Logout</a>
                     {% else %}
                         <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
-                        <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+                        <a href="{% url 'register' %}" class="btn btn-primary ms-2">Register</a>
                     {% endif %}
                 </div>
             </div>
+            
         </div>
     </nav>
         

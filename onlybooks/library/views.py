@@ -2,11 +2,13 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login,logout, update_session_auth_hash
 from datetime import date, timedelta
+from django.contrib.auth.forms import PasswordChangeForm
+
 
 from .models import Author, Book, Rental, Genre, Publication, Subscription,  Rental
-from .forms import EditBook, MyLoginForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication, SubscriptionForm, UpgradeSubscriptionForm, RentBookForm
+from .forms import EditBook, EditProfileForm, MyLoginForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication, SubscriptionForm, UpgradeSubscriptionForm, RentBookForm
 # Create your views here.
 
 def Index(request):
@@ -73,6 +75,40 @@ def register(request):
         user_req_form= UserRegistrationForm()
     return render(request, 'useraccount/register.html',{'user_req_form':user_req_form})
 
+@login_required
+def profile_view(request):
+    user = request.user
+    # If you have additional profile details in a related model, fetch them here.
+    return render(request, 'useraccount/profile.html', {'user': user})
+
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = EditProfileForm(instance=request.user)
+    return render(request, 'useraccount/edit_profile.html', {'form': form})
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Update session to keep the user logged in after password change
+            update_session_auth_hash(request, user)
+            return redirect('profile')
+        else:
+            # Optional: Add error handling
+            return render(request, 'useraccount/change_password.html', {'form': form})
+    else:
+        form = PasswordChangeForm(user=request.user)
+    return render(request, 'useraccount/change_password.html', {'form': form})
 
 #Decorator for role-based access
 # def role_required(roles):
@@ -100,21 +136,23 @@ def user_dashboard(request):
 
 @login_required
 def manage_books(request):
-    return render(request,'books/managebooks.html')
+    books = Book.objects.all()  # Query all books
+    return render(request, 'books/manage_books.html', {'books': books})
 
 @login_required
 def manage_authors(request):
-    return render(request,'authors/manage_authors.html')
-
+    authors = Author.objects.all()  # Query all authors
+    return render(request, 'authors/manage_authors.html', {'authors': authors})
 
 @login_required
 def manage_genres(request):
-    return render(request,'genres/manage_genres.html')
+    genres = Genre.objects.all()  # Query all genres
+    return render(request, 'genres/manage_genres.html', {'genres': genres})
 
 @login_required
 def manage_publications(request):
-    return render(request,'publications/manage_publications.html')
-
+    publications = Publication.objects.all()  # Query all publications
+    return render(request, 'publications/manage_publications.html', {'publications': publications})
 
 
 # Book Views
@@ -158,10 +196,10 @@ def author_create(request):
         form = AddAuthor(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('author_list')
+            return redirect('manage_authors')
     else:
         form = AddAuthor()
-    return render(request, 'authors/add_authors.html', {'form': form})
+    return render(request, 'authors/add_authors.html', {'authors': form})
 
 def author_update(request, pk):
     author = get_object_or_404(Author, pk=pk)
@@ -294,14 +332,16 @@ def upgrade_subscription(request):
         form = UpgradeSubscriptionForm()
     return render(request, 'useraccount/upgrade_subscription.html', {'form': form})
 
-
 @login_required
-def rent_book(request):
+def rent_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)  # Get the specific book
+
     if request.method == 'POST':
         form = RentBookForm(request.POST)
         if form.is_valid():
             rental = form.save(commit=False)
             rental.user = request.user
+            rental.book = book  # Assign the book to the rental
             # Ensure rental limit
             subscription = Subscription.objects.filter(user=request.user).last()
             if not subscription:
@@ -313,10 +353,11 @@ def rent_book(request):
                 else:
                     rental.rental_date = date.today()
                     rental.save()
-                    return redirect('view_rentals')
+                    return redirect('view_rentals')  # Redirect to the user's rentals page
     else:
         form = RentBookForm()
-    return render(request, 'useraccount/rent_book.html', {'form': form})
+    
+    return render(request, 'useraccount/rent_book.html', {'form': form, 'book': book})
 
 
 
@@ -324,3 +365,23 @@ def rent_book(request):
 def rental_list(request):
     rentals = Rental.objects.all()
     return render(request, 'useraccount/rental_list.html', {'rentals': rentals})
+
+
+def books_by_author(request, author_id):
+    # Use `author_id` instead of `id` for the lookup
+    author = get_object_or_404(Author, author_id=author_id)
+    books = Book.objects.filter(author=author)  # Ensure this matches your Book model's field
+    return render(request, 'books_by_author.html', {'author': author, 'books': books})
+
+def books_by_genre(request, genre_id):
+    genre = get_object_or_404(Genre, genre_id=genre_id)
+    books = Book.objects.filter(genre=genre)  # Filter books by genre
+    return render(request, 'books_by_genre.html', {'genre': genre, 'books': books})
+
+
+# List all books in a publication
+def books_by_publication(request, publication_id):
+    publication = get_object_or_404(Publication, id=publication_id)
+    books = Book.objects.filter(publication=publication)
+    return render(request, 'books_by_publication.html', {'publication': publication, 'books': books})
+

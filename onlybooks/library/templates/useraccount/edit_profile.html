@@ -1,5 +1,4 @@
-{% extends "home.html" %}
-
+{% extends 'home.html' %}
 {% block style %}
     <style>
         .hero {
@@ -35,26 +34,20 @@
         }
     </style>
 {% endblock %}
+
+{% block title %}Edit Profile{% endblock %}
+
 {% block body %}
-<h1>Authors</h1>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            {% comment %} <th>Actions</th> {% endcomment %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for author in authors %}
-        <tr>
-            <td>{{ author.name }}</td>
-            <td>{{ author.description }}</td>
-            {% comment %} <td> 
-                <a href="{% url 'books_by_author' author.author_id %}" class="btn btn-primary">View Books</a> 
-            </td>             {% endcomment %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-5">
+    <h1>Edit Profile</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+    <div class="mt-4">
+        <a href="{% url 'change_password' %}" class="btn btn-warning">Change Password</a>
+    </div>
+</div>
 {% endblock %}

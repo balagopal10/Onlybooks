@@ -36,7 +36,7 @@ class Book(models.Model):
     author = models.ForeignKey('Author', on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    availability_status = models.BooleanField(default=True)  # True = Available, False = Unavailable
+    available_copies = models.IntegerField(default=0)
     preview = models.TextField(blank=True)
     publication_date = models.DateField()
     publication = models.ForeignKey(Publication, on_delete=models.SET_NULL, null=True)

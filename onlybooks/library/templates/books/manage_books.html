@@ -1,6 +1,8 @@
 {% extends "home.html" %}
 {% block body %}
 <h1>Books</h1>
+<a href="{% url 'book_create' %}" class="btn btn-primary">Add New Book</a>
+
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -17,16 +19,12 @@
         <tr>
             <td>{{ book.title }}</td>
             <td>{{ book.author.name }}</td>
-            <td>{{ book.genre.genre }}</td>
-            <td>{{book.price}}</td>
-            <td>{{book.preview}}</td>
-            <td>{{book.publication_date}}</td>
-            <td>{{ book.publication.publication }}</td>
+            <td>{{ book.genre.name }}</td>
+            <td>{{ book.publication.name }}</td>
             <td>{{ book.available_copies }}</td>
             <td>
-                <td><a href="{% url 'rent_book' book.pk %}" class="btn btn-primary">Rent</a></td>
-
-                {% comment %} <a href="{% url 'book_delete' book.pk %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
+                <a href="{% url 'book_update' book.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'book_delete' book.pk %}" class="btn btn-danger btn-sm">Delete</a>
             </td>
         </tr>
         {% endfor %}

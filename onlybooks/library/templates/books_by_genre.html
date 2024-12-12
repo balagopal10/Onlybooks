@@ -1,0 +1,40 @@
+{% extends "home.html" %}
+
+{% block style %}
+<style>
+    .container {
+        margin-top: 20px;
+    }
+    .table {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Books in Genre: {{ genre.genre }}</h1>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication</th>
+                <th>Price</th>
+                <th>Availability</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author.name }}</td>
+                <td>{{ book.publication.publication }}</td>
+                <td>{{ book.price }}</td>
+                <td>{{ book.availability_status|yesno:"Available,Unavailable" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

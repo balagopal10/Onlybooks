@@ -35,26 +35,34 @@
         }
     </style>
 {% endblock %}
+
+
 {% block body %}
-<h1>Authors</h1>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            {% comment %} <th>Actions</th> {% endcomment %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for author in authors %}
-        <tr>
-            <td>{{ author.name }}</td>
-            <td>{{ author.description }}</td>
-            {% comment %} <td> 
-                <a href="{% url 'books_by_author' author.author_id %}" class="btn btn-primary">View Books</a> 
-            </td>             {% endcomment %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container">
+    <h1>Books by {{ author.name }}</h1>
+    <p>{{ author.description }}</p>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Publication</th>
+                <th>Available Copies</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.genre.name }}</td>
+                <td>{{ book.publication.name }}</td>
+                <td>{{ book.available_copies }}</td>
+                <td><a href="{% url 'rent_book' %}">Rent</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

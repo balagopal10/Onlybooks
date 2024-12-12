@@ -67,7 +67,7 @@
         <h3>Add A New Author</h3>
         <form action="" method="post" enctype='multipart/form-data' novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ authors.as_p }}
             <input type="submit" value="Add Author" class="btn bt">
         </form>
     </div>

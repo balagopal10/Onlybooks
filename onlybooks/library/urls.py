@@ -1,11 +1,16 @@
 from django.urls import path
-from .views import Index, author_create, author_delete, author_list, author_update, book_create, book_delete, book_list, book_update, browse, genre_create, genre_delete, genre_list, genre_update, manage_authors, manage_books, manage_genres, manage_publications, publication_create, publication_delete, publication_list, publication_update, rental_list, subscription_list,user_login,custom_logout,register, admin_dashboard, user_dashboard, subscribe_view, view_subscription, upgrade_subscription, rent_book
+from .views import Index, author_create, author_delete, author_list, author_update, book_create, book_delete, book_list, book_update, books_by_author, books_by_genre, books_by_publication, browse, change_password, edit_profile, genre_create, genre_delete, genre_list, genre_update, manage_authors, manage_books, manage_genres, manage_publications, profile_view, publication_create, publication_delete, publication_list, publication_update, rental_list, subscription_list,user_login,custom_logout,register, admin_dashboard, user_dashboard, subscribe_view, view_subscription, upgrade_subscription, rent_book
 
 urlpatterns=[
     path('',Index,name='home_path'),
     path('useraccount/login/',user_login, name="login"),    
     path('logout/', custom_logout, name="logout"),
     path('useraccount/register/', register, name='register'),
+    path('profile/', profile_view, name='profile'),
+    path('edit-profile/', edit_profile, name='edit_profile'),
+    path('change-password/', change_password, name='change_password'),
+
+
     path('browse/', browse, name='browse'),
     path('dashboard/admin/', admin_dashboard, name='admin_dashboard'),
     path('dashboard/user/', user_dashboard, name='user_dashboard'),
@@ -34,7 +39,13 @@ urlpatterns=[
     path('subscribe/', subscribe_view, name='subscribe'),
     path('subscription/', view_subscription, name='view_subscription'),
     path('upgrade/', upgrade_subscription, name='upgrade_subscription'),
-    path('rent/', rent_book, name='rent_book'),
+    path('books/<int:book_id>/rent/', rent_book, name='rent_book'),
     path('rentals/', rental_list, name='rental_list'),
-    path('subscriptions/', subscription_list, name='subscription_list')
+    path('subscriptions/', subscription_list, name='subscription_list'),
+
+     path('books/author/<int:author_id>/', books_by_author, name='books_by_author'),
+    path('genres/<int:genre_id>/books/', books_by_genre, name='books_by_genre'),
+   
+    path('publications/<int:publication_id>/books/', books_by_publication, name='books_by_publication'),
+
 ]

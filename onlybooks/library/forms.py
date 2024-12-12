@@ -38,10 +38,25 @@ class UserRegistrationForm(forms.ModelForm): #using ModelForm
                 raise ValidationError('Password does not match!!!')
             
             return cd['password2']
+        
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+
+
 class AddBook(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title','book_img','author', 'genre','price', 'publication_date', 'availability_status', 'preview','publication']
+        fields = ['title', 'book_img', 'author', 'genre', 'price', 'publication_date', 'available_copies', 'preview', 'publication']
+        widgets = {
+            'publication_date': forms.DateInput(attrs={
+                'type': 'date',  # HTML5 date input
+                'class': 'form-control',  # Add Bootstrap class for styling (optional)
+                'placeholder': 'Select a date'  # Placeholder text (optional)
+            }),
+        }
 
     #validation for book_title
     def clean_book_title(self):
@@ -65,12 +80,20 @@ class AddBook(forms.ModelForm):
 class EditBook(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title','book_img','author', 'genre','price', 'publication_date', 'availability_status', 'preview','publication']
+        fields = ['title','book_img','author', 'genre','price', 'publication_date', 'available_copies', 'preview','publication']
+        widgets = {
+            'publication_date': forms.DateInput(attrs={
+                'type': 'date',  # HTML5 date input
+                'class': 'form-control',  # Add Bootstrap class for styling (optional)
+                'placeholder': 'Select a date'  # Placeholder text (optional)
+            }),
+        }
 
 class AddAuthor(forms.ModelForm):
     class Meta:
         model = Author
         fields = ['name','profile_photo', 'description']
+       
 
     
 
