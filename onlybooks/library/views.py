@@ -5,10 +5,11 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate,login,logout, update_session_auth_hash
 from datetime import date, timedelta
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import Group
 
 
-from .models import Author, Book, Rental, Genre, Publication, Subscription,  Rental
-from .forms import EditBook, EditProfileForm, MyLoginForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication, SubscriptionForm, UpgradeSubscriptionForm, RentBookForm
+from .models import Author, Book, Rent, Genre, Publication, Membership  
+from .forms import EditBook, EditProfileForm, MembershipForm, MyLoginForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication,  UpgradeSubscriptionForm
 # Create your views here.
 
 def Index(request):
@@ -70,6 +71,8 @@ def register(request):
                 #using set_password()
                 user_req_form.cleaned_data['password'])
             new_user.save() #save to db
+            user_group, created = Group.objects.get_or_create(name='User')
+            user_group.user_set.add(new_user)
             return render(request, 'useraccount/register_done.html',{'user_req_form':user_req_form})
     else:
         user_req_form= UserRegistrationForm()
@@ -131,8 +134,8 @@ def admin_dashboard(request):
 @login_required
 # @role_required(['User'])
 def user_dashboard(request):
-    rentals = Rental.objects.filter(user=request.user)
-    return render(request, 'useraccount/user_dashboard.html', {'rentals': rentals})
+    Rents = Rent.objects.filter(user=request.user)
+    return render(request, 'useraccount/user_dashboard.html', {'Rents': Rents})
 
 @login_required
 def manage_books(request):
@@ -292,79 +295,79 @@ def browse(request):
     })
 
 
-@login_required
-def subscribe_view(request):
-    if request.method == 'POST':
-        form = SubscriptionForm(request.POST)
-        if form.is_valid():
-            subscription = form.save(commit=False)
-            subscription.user = request.user
-            subscription.save()
-            return redirect('view_subscription')
-    else:
-        form = SubscriptionForm()
-    return render(request, 'useraccount/subscribe.html', {'form': form})
+# @login_required
+# def subscribe_view(request):
+#     if request.method == 'POST':
+#         form = SubscriptionForm(request.POST)
+#         if form.is_valid():
+#             subscription = form.save(commit=False)
+#             subscription.user = request.user
+#             subscription.save()
+#             return redirect('view_subscription')
+#     else:
+#         form = SubscriptionForm()
+#     return render(request, 'useraccount/subscribe.html', {'form': form})
 
-@login_required
-def view_subscription(request):
-    subscription = Subscription.objects.filter(user=request.user).last()
-    return render(request, 'useraccount/view_subscription.html', {'subscription': subscription})
+# @login_required
+# def view_subscription(request):
+#     subscription = Membership.objects.filter(user=request.user).last()
+#     return render(request, 'useraccount/view_subscription.html', {'subscription': subscription})
 
-@login_required
-def subscription_list(request):
-    subscriptions = Subscription.objects.all()
-    return render(request, 'useraccount/subscription_list.html', {'subscriptions': subscriptions})
-
-
+# @login_required
+# def subscription_list(request):
+#     subscriptions = Membership.objects.all()
+#     return render(request, 'useraccount/subscription_list.html', {'subscriptions': subscriptions})
 
 
-def upgrade_subscription(request):
-    if request.method == 'POST':
-        form = UpgradeSubscriptionForm(request.POST)
-        if form.is_valid():
-            new_plan = form.cleaned_data['plan']
-            subscription = Subscription.objects.filter(user=request.user).last()
-            if subscription:
-                subscription.plan = new_plan
-                subscription.save()
-                return redirect('view_subscription')
-    else:
-        form = UpgradeSubscriptionForm()
-    return render(request, 'useraccount/upgrade_subscription.html', {'form': form})
 
-@login_required
-def rent_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)  # Get the specific book
 
-    if request.method == 'POST':
-        form = RentBookForm(request.POST)
-        if form.is_valid():
-            rental = form.save(commit=False)
-            rental.user = request.user
-            rental.book = book  # Assign the book to the rental
-            # Ensure rental limit
-            subscription = Subscription.objects.filter(user=request.user).last()
-            if not subscription:
-                form.add_error(None, "No active subscription found.")
-            else:
-                active_rentals = Rental.objects.filter(user=request.user, status='Borrowed').count()
-                if active_rentals >= subscription.max_rentals:
-                    form.add_error(None, "Rental limit exceeded for your membership plan.")
-                else:
-                    rental.rental_date = date.today()
-                    rental.save()
-                    return redirect('view_rentals')  # Redirect to the user's rentals page
-    else:
-        form = RentBookForm()
+# def upgrade_subscription(request):
+#     if request.method == 'POST':
+#         form = UpgradeSubscriptionForm(request.POST)
+#         if form.is_valid():
+#             new_plan = form.cleaned_data['plan']
+#             subscription = Membership.objects.filter(user=request.user).last()
+#             if subscription:
+#                 subscription.plan = new_plan
+#                 subscription.save()
+#                 return redirect('view_subscription')
+#     else:
+#         form = UpgradeSubscriptionForm()
+#     return render(request, 'useraccount/upgrade_subscription.html', {'form': form})
+
+# @login_required
+# def rent_book(request, book_id):
+#     book = get_object_or_404(Book, id=book_id)  # Get the specific book
+
+#     if request.method == 'POST':
+#         form = RentBookForm(request.POST)
+#         if form.is_valid():
+#             Rent = form.save(commit=False)
+#             Rent.user = request.user
+#             Rent.book = book  # Assign the book to the Rent
+#             # Ensure Rent limit
+#             subscription = Membership.objects.filter(user=request.user).last()
+#             if not subscription:
+#                 form.add_error(None, "No active subscription found.")
+#             else:
+#                 active_Rents = Rent.objects.filter(user=request.user, status='Borrowed').count()
+#                 if active_Rents >= subscription.max_Rents:
+#                     form.add_error(None, "Rent limit exceeded for your membership plan.")
+#                 else:
+#                     Rent.Rent_date = date.today()
+#                     Rent.save()
+#                     return redirect('view_Rents')  # Redirect to the user's Rents page
+#     else:
+#         form = RentBookForm()
     
-    return render(request, 'useraccount/rent_book.html', {'form': form, 'book': book})
+#     return render(request, 'useraccount/rent_book.html', {'form': form, 'book': book})
 
 
 
 
-def rental_list(request):
-    rentals = Rental.objects.all()
-    return render(request, 'useraccount/rental_list.html', {'rentals': rentals})
+def Rent_list(request):
+    Rents = Rent.objects.all()
+    return render(request, 'useraccount/Rent_list.html', {'Rents': Rents})
 
 
 def books_by_author(request, author_id):
@@ -384,4 +387,106 @@ def books_by_publication(request, publication_id):
     publication = get_object_or_404(Publication, id=publication_id)
     books = Book.objects.filter(publication=publication)
     return render(request, 'books_by_publication.html', {'publication': publication, 'books': books})
+
+
+
+
+from django.contrib import messages
+from .models import Membership, UserProfile
+@login_required
+def membership_list(request):
+    memberships = Membership.objects.all()
+    return render(request, 'membership_list.html', {'memberships': memberships})
+
+@login_required
+def take_membership(request):
+    if request.method == 'POST':
+        form = MembershipForm(request.POST)
+        if form.is_valid():
+            membership = form.save(commit=False)
+            membership.user = request.user  # Set the user for the membership
+            membership.save()
+            messages.success(request, "You have successfully subscribed to a membership!")
+            return redirect('user_dashboard')  # Replace with the appropriate redirect
+    else:
+        form = MembershipForm()
+
+    return render(request, 'membership_form.html', {'form': form})
+
+
+
+from .models import Cart, Book
+
+@login_required
+def cart_view(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    return render(request, 'cart.html', {'cart_items': cart_items})
+
+@login_required
+def add_to_cart(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    cart_item, created = Cart.objects.get_or_create(user=request.user, book=book)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    messages.success(request, f"{book.title} added to your cart.")
+    return redirect('cart_view')
+
+@login_required
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(Cart, id=item_id, user=request.user)
+    cart_item.delete()
+    messages.success(request, "Item removed from your cart.")
+    return redirect('cart_view')
+
+
+from .models import Order, OrderItem
+
+@login_required
+def place_order(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    if not cart_items:
+        messages.warning(request, "Your cart is empty!")
+        return redirect('cart_view')
+
+    order = Order.objects.create(user=request.user, total_price=0.00)
+    total_price = 0
+
+    for item in cart_items:
+        OrderItem.objects.create(order=order, book=item.book, quantity=item.quantity, price=item.book.price)
+        total_price += item.book.price * item.quantity
+
+    order.total_price = total_price
+    order.save()
+    cart_items.delete()
+
+    messages.success(request, "Order placed successfully!")
+    return redirect('order_details', order_id=order.id)
+
+
+
+
+
+from datetime import timedelta
+from .models import Rent
+
+@login_required
+def rent_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    user_profile = UserProfile.objects.get(user=request.user)
+
+    if not user_profile.membership:
+        messages.warning(request, "You must have a membership to rent books.")
+        return redirect('membership_list')
+
+    Rent = Rent.objects.create(
+        user=request.user,
+        book=book,
+        Rent_amount=book.price * 0.10,  # Example Rent cost calculation
+        membership=user_profile.membership
+    )
+    Rent.set_return_date()
+    messages.success(request, f"You have rented {book.title}.")
+    return redirect('rent_details', rent_id=Rent.id)
+
 

@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Book, Author, Genre,Publication, Subscription, Rental
+from .models import  User, Book, Author, Genre,Publication, Membership, Rent
 from django.forms import ValidationError
 
 class MyLoginForm(forms.Form): #using Form
@@ -109,14 +109,36 @@ class AddPublication(forms.ModelForm):
         fields = ['publication']
 
 
-class SubscriptionForm(forms.ModelForm):
+
+
+class MembershipForm(forms.ModelForm):
     class Meta:
-        model = Subscription
-        fields = ['plan', 'start_date', 'end_date']
-        widgets = {
-            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        model = Membership
+        fields = ['plan_name', 'duration_days']
+        labels = {
+            'plan_name': 'Membership Plan',
+            'duration_days': 'Duration (in months)',
         }
+        widgets = {
+            'plan_name': forms.Select(attrs={'class': 'form-control'}),
+            'duration_days': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        plan_name = cleaned_data.get('plan_name')
+        duration_days = cleaned_data.get('duration_days')
+
+        # Additional validations if needed
+        if not plan_name:
+            self.add_error('plan_name', 'Please select a membership plan.')
+        if not duration_days:
+            self.add_error('duration_days', 'Please select a valid duration.')
+
+        return cleaned_data
+
+
+
 
 
 class UpgradeSubscriptionForm(forms.Form):
@@ -129,10 +151,3 @@ class UpgradeSubscriptionForm(forms.Form):
 
 
 
-class RentBookForm(forms.ModelForm):
-    class Meta:
-        model = Rental
-        fields = ['book', 'due_date']
-        widgets = {
-            'due_date': forms.DateInput(attrs={'type': 'date'}),
-        }

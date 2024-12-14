@@ -42,7 +42,7 @@
         <tr>
             <th>Name</th>
             <th>Description</th>
-            {% comment %} <th>Actions</th> {% endcomment %}
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -50,9 +50,7 @@
         <tr>
             <td>{{ author.name }}</td>
             <td>{{ author.description }}</td>
-            {% comment %} <td> 
-                <a href="{% url 'books_by_author' author.author_id %}" class="btn btn-primary">View Books</a> 
-            </td>             {% endcomment %}
+            <td> <a href="{% url 'books_by_author' author.pk %}" class="btn btn-danger btn-sm">View Books</a> </td>
         </tr>
         {% endfor %}
     </tbody>

@@ -1,0 +1,29 @@
+<!-- membership_list.html -->
+{% extends 'home.html' %}
+
+{% block body %}
+<div class="hero">
+    <div class="text-center">
+        <h1>Explore Our Membership Plans</h1>
+        <p>Choose a plan that fits your needs and enjoy our exclusive benefits.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        {% for membership in memberships %}
+            <div class="col-md-4">
+                <div class="feature-card card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ membership.plan_name }}</h5>
+                        <p class="card-text">{{ membership.description }}</p>
+                        <p class="card-text">Duration: {{ membership.duration_days }} days</p>
+                        <a href="{% url 'subscribe_membership' plan_id=membership.id %}" class="btn btn-primary">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
