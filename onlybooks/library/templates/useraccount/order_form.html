@@ -1,0 +1,15 @@
+{% extends "home.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Buy {{ book.title }}</h1>
+    <p><strong>Author:</strong> {{ book.author.name }}</p>
+    <p><strong>Genre:</strong> {{ book.genre.genre }}</p>
+    <p><strong>Available Copies:</strong> {{ book.available_copies }}</p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Place Order</button>
+      </form>
+</div>
+{% endblock %}

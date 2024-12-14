@@ -7,9 +7,10 @@
             <th>Title</th>
             <th>Author</th>
             <th>Genre</th>
+            <th>Price</th>
             <th>Publication</th>
             <th>Available Copies</th>
-            <th>Actions</th>
+            <th colspan="2">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -18,16 +19,15 @@
             <td>{{ book.title }}</td>
             <td>{{ book.author.name }}</td>
             <td>{{ book.genre.genre }}</td>
-            <td>{{book.price}}</td>
-            <td>{{book.preview}}</td>
-            <td>{{book.publication_date}}</td>
+            <td>{{ book.price }}</td>
             <td>{{ book.publication.publication }}</td>
             <td>{{ book.available_copies }}</td>
             <td>
-                <td><a href="{% url 'rent_book' book.pk %}" class="btn btn-primary">Rent</a></td>
-
-                {% comment %} <a href="{% url 'book_delete' book.pk %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
+                
+                    <a href="{% url 'create_rent' book.book_id %}" class="btn btn-primary">Rent</a>
             </td>
+            <td><a href="{% url 'order_book' book.book_id %}" class="btn btn-primary">Order</a></td>
+            
         </tr>
         {% endfor %}
     </tbody>

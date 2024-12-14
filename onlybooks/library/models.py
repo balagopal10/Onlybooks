@@ -146,15 +146,15 @@ class UserProfile(models.Model):
 
 
 
-# Payment Model
-class Payment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    payment_date = models.DateTimeField(auto_now_add=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=50, choices=[('Success', 'Success'), ('Failed', 'Failed')],default='Success')
+# # Payment Model
+# class Payment(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     payment_date = models.DateTimeField(auto_now_add=True)
+#     amount = models.DecimalField(max_digits=10, decimal_places=2)
+#     status = models.CharField(max_length=50, choices=[('Success', 'Success'), ('Failed', 'Failed')],default='Success')
 
-    def __str__(self):
-        return self.id
+#     def __str__(self):
+#         return self.id
 
 
 # Cart Model
@@ -169,29 +169,29 @@ class Cart(models.Model):
     
 
 
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    order_date = models.DateTimeField(auto_now_add=True)
-    payment_id = models.ForeignKey(Payment, on_delete=models.CASCADE)
+# class Order(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     order_date = models.DateTimeField(auto_now_add=True)
+#     payment_id = models.ForeignKey(Payment, on_delete=models.CASCADE)
   
 
-    def calculate_total_price(self):
-        self.total_price = sum(item.price * item.quantity for item in self.order_items.all())
-        self.save()
+#     def calculate_total_price(self):
+#         self.total_price = sum(item.price * item.quantity for item in self.order_items.all())
+#         self.save()
 
-    def __str__(self):
-        return f"Order {self.id} by {self.user.username}"
+#     def __str__(self):
+#         return f"Order {self.id} by {self.user.username}"
 
 
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+# class OrderItem(models.Model):
+#     order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
+#     book = models.ForeignKey(Book, on_delete=models.CASCADE)
+#     quantity = models.PositiveIntegerField(default=1)
+#     price = models.DecimalField(max_digits=10, decimal_places=2)
 
-    def __str__(self):
-        return f"{self.quantity} x {self.book.title} in Order {self.order.id}"
+#     def __str__(self):
+#         return f"{self.quantity} x {self.book.title} in Order {self.order.id}"
 
 
 #  Order Model
@@ -230,28 +230,56 @@ class Rent(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    rental_date = models.DateTimeField(auto_now_add=True)
+    rental_date = models.DateTimeField()
     return_date = models.DateField()
-    payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    payment = models.CharField(max_length=30,editable=False)
     membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
 
-    def save(self, *args, **kwargs):
-        if not self.rent_id:
-            # Generate a unique rent ID with the format RTxxxxxxxx
-            self.rent_id = self.generate_rent_id()
-        super().save(*args, **kwargs)
+    
 
     def generate_rent_id(self):
         while True:
             rent_id = f"RT{random.randint(10000000, 99999999)}"
             if not Rent.objects.filter(rent_id=rent_id).exists():
                 return rent_id
-
-    def set_return_date(self):
-        self.return_date = self.rental_date + timedelta(days=self.membership.rental_period_days)
-        self.save()
+            
+    def save(self, *args, **kwargs):
+        if not self.rent_id:
+            # Generate a unique rent ID with the format RTxxxxxxxx
+            self.rent_id = self.generate_rent_id()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} rented {self.book.title}"
 
+
+
+class Order(models.Model):
+    order_id = models.CharField(
+        max_length=10, 
+        primary_key=True, 
+        unique=True, 
+        editable=False
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    order_date = models.DateTimeField()
+    payment = models.CharField(max_length=30,editable=False)
+    membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
+
+    
+
+    def generate_order_id(self):
+        while True:
+            order_id = f"OR{random.randint(10000000, 99999999)}"
+            if not Order.objects.filter(order_id=order_id).exists():
+                return order_id
+            
+    def save(self, *args, **kwargs):
+        if not self.order_id:
+            self.order_id = self.generate_order_id()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user.username} ordered {self.book.title}"
 

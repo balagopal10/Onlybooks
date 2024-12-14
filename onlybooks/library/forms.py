@@ -148,6 +148,18 @@ class UpgradeSubscriptionForm(forms.Form):
         ('Diamond', 'Diamond')
     ])
 
+class RentForm(forms.Form):
+    PAYMENT_CHOICES = [
+        ('credit_card', 'Credit Card'),
+        ('debit_card', 'Debit Card'),
+        ('paypal', 'PayPal'),
+    ]
+    payment_mode = forms.ChoiceField(choices=PAYMENT_CHOICES, widget=forms.RadioSelect)
 
-
-
+class OrderForm(forms.Form):
+    PAYMENT_CHOICES = [
+        ('credit_card', 'Credit Card'),
+        ('debit_card', 'Debit Card'),
+        ('paypal', 'PayPal'),
+    ]
+    payment_mode = forms.ChoiceField(choices=PAYMENT_CHOICES, widget=forms.RadioSelect)

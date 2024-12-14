@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import Index, author_create, author_delete, author_list, author_update, book_create, book_delete, book_list, book_update, books_by_author, books_by_genre, books_by_publication, browse, change_password, edit_profile, genre_create, genre_delete, genre_list, genre_update, manage_authors, manage_books, manage_genres, manage_publications, membership_list, profile_view, publication_create, publication_delete, publication_list, publication_update,  take_membership,user_login,custom_logout,register, admin_dashboard, user_dashboard,  rent_book
+from .views import Index,  author_create, author_delete, author_list, author_update, book_create, book_delete, book_list, book_update, books_by_author, books_by_genre, books_by_publication, browse, change_password, edit_profile, genre_create, genre_delete, genre_list, genre_update, manage_authors, manage_books, manage_genres, manage_publications, membership_list, order_book, order_confirmation, profile_view, publication_create, publication_delete, publication_list, publication_update, rent_book, rent_confirmation,  take_membership,user_login,custom_logout,register, admin_dashboard, user_dashboard
+from django.urls import path
 
 urlpatterns=[
     path('',Index,name='home_path'),
@@ -36,7 +37,7 @@ urlpatterns=[
     path('publications/create/', publication_create, name='publication_create'),
     path('publications/update/<int:pk>/', publication_update, name='publication_update'),
     path('publications/delete/<int:pk>/', publication_delete, name='publication_delete'),
-    path('books/<int:book_id>/rent/', rent_book, name='rent_book'),
+
     
 
      path('books/author/<int:author_id>/', books_by_author, name='books_by_author'),
@@ -47,5 +48,13 @@ urlpatterns=[
 
  path('memberships/', membership_list, name='membership_list'),  
 path('takemembership/', take_membership, name='take_membership'),  
+path('useraccount/create-rent/<int:book_id>/', rent_book, name='create_rent'),
+  path('useraccount/rent-success/<str:rent_id>/', rent_confirmation, name='rent_confirmation'),
+  path('useraccount/order/<int:book_id>/', order_book, name='order_book'),
+  path('useraccount/order-confirmation/<str:order_id>/', order_confirmation, name='order_confirmation'),
+  
+
+
+
 ]
 

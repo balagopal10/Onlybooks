@@ -22,6 +22,7 @@
                 <th>Publication</th>
                 <th>Price</th>
                 <th>Availability</th>
+                <th colspan="2">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -32,6 +33,11 @@
                 <td>{{ book.publication.publication }}</td>
                 <td>{{ book.price }}</td>
                 <td>{{ book.availability_status|yesno:"Available,Unavailable" }}</td>
+                <td>
+                
+                    <a href="{% url 'create_rent' book.book_id %}" class="btn btn-primary">Rent</a>
+            </td>
+            <td><a href="{% url 'order_book' book.book_id %}" class="btn btn-primary">Order</a></td>
             </tr>
             {% endfor %}
         </tbody>

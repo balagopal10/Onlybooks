@@ -3,13 +3,14 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate,login,logout, update_session_auth_hash
-from datetime import date, timedelta
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import Group
 
 
-from .models import Author, Book, Rent, Genre, Publication, Membership  
-from .forms import EditBook, EditProfileForm, MembershipForm, MyLoginForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication,  UpgradeSubscriptionForm
+from .models import Author, Book, Order, Rent, Genre, Publication, Membership  
+from .forms import EditBook, EditProfileForm, MembershipForm, MyLoginForm, OrderForm, UserRegistrationForm ,AddAuthor,AddBook ,AddGenre ,AddPublication 
 # Create your views here.
 
 def Index(request):
@@ -440,53 +441,102 @@ def remove_from_cart(request, item_id):
     return redirect('cart_view')
 
 
-from .models import Order, OrderItem
 
-@login_required
-def place_order(request):
-    cart_items = Cart.objects.filter(user=request.user)
-    if not cart_items:
-        messages.warning(request, "Your cart is empty!")
-        return redirect('cart_view')
 
-    order = Order.objects.create(user=request.user, total_price=0.00)
-    total_price = 0
-
-    for item in cart_items:
-        OrderItem.objects.create(order=order, book=item.book, quantity=item.quantity, price=item.book.price)
-        total_price += item.book.price * item.quantity
-
-    order.total_price = total_price
-    order.save()
-    cart_items.delete()
-
-    messages.success(request, "Order placed successfully!")
-    return redirect('order_details', order_id=order.id)
 
 
 
 
 
 from datetime import timedelta
+
+from django.shortcuts import render, redirect
+
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from .models import Rent
+from .forms import RentForm
 
-@login_required
+# View to handle the rent form submission
 def rent_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
-    user_profile = UserProfile.objects.get(user=request.user)
+    book = Book.objects.get(book_id=book_id)
+    if book.available_copies <= 0:
+        return render(request, 'books/book_list.html', {'message': 'Sorry, this book is currently out of stock.'})
 
-    if not user_profile.membership:
-        messages.warning(request, "You must have a membership to rent books.")
-        return redirect('membership_list')
+    if request.method == 'POST':
+        form = RentForm(request.POST)
+        if form.is_valid():
+            # Process rent logic
+            payment = form.cleaned_data['payment_mode']
+            membership = Membership.objects.get(user=request.user)  # Assuming the user has a membership
+            
+            # Calculate the return_date based on the membership's rental period
+            rental_date = timezone.now().date()
+            return_date = rental_date + timedelta(days=membership.rental_period_days)
 
-    Rent = Rent.objects.create(
-        user=request.user,
-        book=book,
-        Rent_amount=book.price * 0.10,  # Example Rent cost calculation
-        membership=user_profile.membership
-    )
-    Rent.set_return_date()
-    messages.success(request, f"You have rented {book.title}.")
-    return redirect('rent_details', rent_id=Rent.id)
+            # Create the Rent object with the return_date set
+            rent = Rent.objects.create(
+                user=request.user,
+                book=book,
+                payment=payment,
+                membership=membership,
+                rental_date=rental_date,
+                return_date=return_date  # Set the return_date explicitly
+            )
+
+            # Decrease the available stock of the book
+            book.available_copies=book.available_copies - 1
+            book.save()
+
+            # Redirect to the confirmation page
+            return redirect('rent_confirmation', rent_id=rent.rent_id)
+    else:
+        form = RentForm()
+    return render(request, 'useraccount/rent_form.html', {'form': form, 'book': book})
+# Confirmation view after renting the book
+def rent_confirmation(request, rent_id):
+    rent = Rent.objects.get(rent_id=rent_id)
+    return render(request, 'useraccount/rent_confirmation.html', {'rent': rent})
 
 
+
+
+
+
+def order_book(request, book_id):
+    book = Book.objects.get(book_id=book_id)
+    if book.available_copies <= 0:
+        return render(request, 'books/book_list.html', {'message': 'Sorry, this book is currently out of stock.'})
+
+    if request.method == 'POST':
+        form =OrderForm(request.POST)
+        if form.is_valid():
+            # Process rent logic
+            payment = form.cleaned_data['payment_mode']
+            membership = Membership.objects.get(user=request.user)  # Assuming the user has a membership
+            
+            # Calculate the return_date based on the membership's rental period
+            order_date = timezone.now().date() 
+
+            # Create the Rent object with the return_date set
+            order = Order.objects.create(
+                user=request.user,
+                book=book,
+                payment=payment,
+                membership=membership,
+                order_date=order_date  # Set the return_date explicitly
+            )
+
+            # Decrease the available stock of the book
+            book.available_copies=book.available_copies - 1
+            book.save()
+
+            # Redirect to the confirmation page
+            return redirect('order_confirmation', order_id=order.order_id)
+    else:
+        form = OrderForm()
+    return render(request, 'useraccount/order_form.html', {'form': form, 'book': book})
+# Confirmation view after renting the book
+def order_confirmation(request, order_id):
+    rent = Order.objects.get(order_id=order_id)
+    return render(request, 'useraccount/order_confirmation.html', {'rent': rent})
